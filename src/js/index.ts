@@ -17,17 +17,25 @@ class DataTable implements IDataTableData{
         this._items = [];
     }
 
-    public create(){
+    public createFromTable  (){
         const el = document.querySelector(this._selector);
         if(el?.tagName.toLowerCase() != 'table') throw new Error('Table is required');
-        
+         
         const headers = <HTMLElement[]>[].slice.call(el.querySelector('thead tr')?.children!);
+        const trs = <HTMLElement[]>[].slice.call(el.querySelector('tbody')?.children!);
         
         headers.forEach(element => {
             this._columns.push(element.textContent!);
         });
 
-        console.log(this._columns);
-        
+        trs.forEach(x =>{
+            const tr = <HTMLElement[]>[].slice.call(x.children);
+            let row:string[] = [];
+            tr.forEach(td =>{
+                row.push(td.textContent!);
+            });
+            this._items.push(row);
+        });
+        console.log(this._columns, this._items); 
     }
 }
