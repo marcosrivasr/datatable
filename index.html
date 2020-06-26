@@ -5,32 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="dist/css/index.css">
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <table id="tabla">
-        <thead>
-            <tr>
-                <th>Column 1</th>
-                <th>Column 2</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Row 1 Data 1</td>
-                <td>Row 1 Data 2</td>
-            </tr>
-            <tr>
-                <td>Row 2 Data 1</td>
-                <td>Row 2 Data 2</td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="datatable">
+        <div class="header-tools">
+            <div class="tools">
+                <ul>
+                    <li><span><input type="checkbox" name="" id=""></span></li>
+                    <li><button>New</button></li>
+                    <li><button>Edit</button></li>
+                    <li><button>Remove</button></li>
+                </ul>
+            </div>
+            <div class="search">
+                <input type="text" class="search-input">
+            </div>
+            
+        </div>
+        <table class="datatable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Office</th>
+                    <th>Age</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Marcos Rivas</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Lena Sanchez</td>
+                    <td>CIO</td>
+                    <td>Florida</td>
+                    <td>29</td>
+                    <td>2020/07/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Juan Perez</td>
+                    <td>CMO</td>
+                    <td>Mexico</td>
+                    <td>25</td>
+                    <td>2019/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Alma Mater</td>
+                    <td>Subdirector TI</td>
+                    <td>Seattle</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Catalina Creel</td>
+                    <td>HR Director</td>
+                    <td>Sevilla</td>
+                    <td>42</td>
+                    <td>2020/12/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Sergio Corona</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Mateo Vinicius</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Sofia Rivera</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Agustin Lara</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                <tr>
+                    <th class="table-checkbox"><input type="checkbox" name="" id=""></th>
+                    <td>Mon Laferte</td>
+                    <td>CEO</td>
+                    <td>San Francisco</td>
+                    <td>28</td>
+                    <td>2020/05/01</td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <div class="footer-tools">
+            <div class="list-items">
+                Show
+                <select name="n-entries" id="n-enties" class="n-entries">
+                    <option value="15">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </select>
+                entries
+            </div>
+            
+            <div class="pages">
+                <ul>
+                    <li><span class="active">1</span></li>
+                    <li><button>2</button></li>
+                    <li><button>3</button></li>
+                    <li><button>4</button></li>
+                    <li><span>...</span></li>
+                    <li><button>9</button></li>
+                    <li><button>10</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <script src="dist/index.js"></script>
+    
 
     <script>
         
-        const dt = new DataTable('#tabla');
-        dt.create();
+        const dt = new DataTable('.datatable');
+        dt.createFromTable();
     </script>
 </body>
 </html>

@@ -1,0 +1,129 @@
+:root{
+    --dt-padding: 12px;
+    --dt-padding-sm: 6px;
+    --dt-padding-xsm: 2px;
+    --dt-border-color: #eee;
+    --dt-border-color-02: #ccc;
+    --dt-bg-color: #eee;
+    --dt-bg-active-button: #eee;
+    --dt-text-color-button: #222;
+    --dt-text-color-active-button: #000;
+}
+#datatable{
+    border: solid 1px var(--dt-border-color);
+    width: 490px;
+    margin: 0 auto;
+    font-size: 12px;
+}
+
+.header-tools{
+    border-bottom: solid 1px var(--dt-border-color);
+    padding: var(--dt-padding);
+    display: flex;
+    align-items: baseline;
+}
+.header-tools .search{
+    width: 30%;
+}
+.header-tools .search .search-input{
+    width: 100%;
+    display: block;
+    box-sizing : border-box;
+    border-radius: 3px;
+    border: solid 1px var(--dt-border-color-02);
+}
+.header-tools .tools{
+    width: 70%;
+}
+.header-tools .tools ul{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: start;
+    align-items: baseline;
+}
+.header-tools .tools ul li{
+    display: inline-block;
+    margin: 0 var(--dt-padding-xsm);
+    align-items: baseline;
+}
+.header-tools .tools ul li span input{
+    vertical-align: middle;
+}
+.footer-tools{
+    padding: var(--dt-padding);
+    display: flex;
+    align-items: baseline;
+}
+.footer-tools .list-items{
+    width: 50%;
+}
+.footer-tools .pages{
+    margin-left: auto;
+    margin-right: 0;
+    width: 50%;
+}
+.footer-tools .pages ul{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+}
+.footer-tools .pages ul li{
+    display: inline-block;
+    margin: 0 var(--dt-padding-xsm);
+}
+.footer-tools .pages ul li button,
+.header-tools .tools ul li button{
+    color: var(--dt-text-color-button);
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+}
+.footer-tools .pages ul li button:hover,
+.header-tools .tools ul li button:hover{
+    background: var(--dt-bg-active-button);
+    color: var(--dt-text-color-active-button);
+}
+.footer-tools .pages ul li span.active{
+    background-color:  var(--dt-bg-color);
+    border-radius: 3px;
+}
+.footer-tools .pages ul li button,
+.footer-tools .pages ul li span,
+.header-tools .tools ul li button{
+    padding: var(--dt-padding-sm) var(--dt-padding);
+}
+
+.datatable{
+    border-collapse: collapse;
+    width: 100%;
+}
+.datatable,
+.datatable th,
+.datatable td{
+    padding: var(--dt-padding) var(--dt-padding);
+}
+
+.datatable th{
+    font-weight: bolder;
+    text-align: left;
+    border-bottom: solid 1px var(--dt-border-color);
+}
+
+.datatable td{
+    border-bottom: solid 1px var(--dt-border-color);
+}
+.datatable tbody tr:nth-child(even){
+    background-color: rgb(250, 250, 250);
+}
+.datatable tbody tr:hover{
+    background-color: rgb(230, 230, 230);
+}
+.datatable tbody tr .table-checkbox{
+    width: 1px;
+}
