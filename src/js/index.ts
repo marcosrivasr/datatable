@@ -1,37 +1,38 @@
 interface IDataTableData{
-    headers?: IHeaders,
-    items?: IItemType[],
+    headers?: string[],
+    count?: number,
+    items?: object[],
+    copy?: object[],
     settings?: ISettings
 }
-interface IHeaders{
-    headers: string[]
-}
-interface IItemType{
+interface IItem{
     item: string | number;
 }
 interface ISettings{
-    showCheckboxes: boolean,
-    showHeaderButtons:boolean,
-    showSearch: boolean,
-    showEntries: boolean,
-    numberOfEntries: number,
-    headerButtons: string[]
+    showCheckboxes?: boolean,
+    showHeaderButtons?:boolean,
+    showSearch?: boolean,
+    showEntries?: boolean,
+    numberOfEntries?: number,
+    headerButtons?: string[]
 }
 
 class DataTable{
     _selector:string;
-    _columns: string[];
-    _items:object[];
+    //_columns: string[];
+    //_items:object[];
     _data:IDataTableData;
-    _settings: ISettings;
     
 
-    constructor(selector: string, settings: ISettings){
-        this._settings = settings;
+    constructor(selector: string, settings: ISettings = {}){
         this._selector = selector;
-        this._columns = [];
-        this._items = [];
-        this._data = {};
+        //this._columns = [];
+        //this._items = [];
+        this._data = {
+            settings: settings,
+            headers: [],
+            items: []
+        };
         /* this._settings = {
             showCheckboxes: true,
             showHeaderButtons: 'always',
@@ -57,16 +58,34 @@ class DataTable{
         const trs = <HTMLElement[]>[].slice.call(el.querySelector('tbody')?.children!);
         
         headers.forEach(element => {
-            this._columns.push(element.textContent!);
+            //this._columns.push(element.textContent!);
+            this._data.headers!.push(element.textContent!);
+            //this._data.headers!.push(element.textContent!);
         });
 
         trs.forEach(x =>{
             const tr = <HTMLElement[]>[].slice.call(x.children);
             let row:string[] = [];
-            tr.forEach(td => row.push(td.textContent!));
-            this._items.push(row);
+            tr.forEach(td => {
+                row.push(td.textContent!)
+                
+            });
+            //this._items.push(row);
+            this._data.items!.push(row);
         });
-        console.log(this._columns, this._items); 
+        this._data.copy = [...this._data.items!];
+        console.log(this._data.headers, this._data.items); 
+    }
+
+    private renderRows(container:HTMLElement){
+        container.querySelector('tbody')!.innerHTML = '';
+        this._data.copy!.forEach(rows =>{
+            let data = '';
+            (<string[]>rows).forEach(cell =>{
+                data += `<td>${cell}</td>`
+            });
+            container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
+        });
     }
 
     private makeTable(){
@@ -81,7 +100,6 @@ class DataTable{
             <div class="header-tools">
                 <div class="tools">
                     <ul>
-                        <li><span><input type="checkbox" name="" id=""></span></li>
                         <li><button>New</button></li>
                         <li><button>Edit</button></li>
                         <li><button>Remove</button></li>
@@ -124,17 +142,57 @@ class DataTable{
             </div>
         </div>
         `;
-        this._columns.forEach(header =>{
+        //this._columns.forEach(header =>{
+        this._data.headers!.forEach(header =>{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
-        this._items.forEach(rows =>{
-            mainContainer.querySelector('tbody')!.innerHTML += `<tr>`;
+        //this._items.forEach(rows =>{
+        this._data.copy!.forEach(rows =>{
             let data = '';
             (<string[]>rows).forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
-            mainContainer.querySelector('tbody')!.innerHTML += `${data}</tr>`;
+            mainContainer.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
+        });
+
+        mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
+            const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
+            let res:string[][] = [];
+            let isMatch:boolean = false;
+            if(query === ''){
+                this._data.copy = [...this._data.items!];
+                this.renderRows(mainContainer);
+                return false;
+            }
+
+            for(let i:number = 0; i < this._data.items!.length; i++){
+                const row:string[] = <string[]>this._data.items![i];
+
+                for(let j:number = 0; j < row.length; j++){
+                    const cell = row[j];
+
+                    if(cell.toLowerCase().indexOf(query) >= 0){
+                        res.push(row);
+                        break;
+                    }
+                }    
+            }
+            /* this._data.items!.forEach(row => {
+                (<string[]>row).forEach(cell => {
+                    if(cell.toLowerCase().indexOf(query) > 0){
+                        isMatch = true;
+                    }
+                });
+                if(isMatch){
+                    res.push((<string[]>row));
+                    isMatch = false;
+                }
+            }); */
+            
+            this._data.copy = [...res];
+            this.renderRows(mainContainer);
+            
         });
 
     }
