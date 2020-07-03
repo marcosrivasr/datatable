@@ -238,6 +238,22 @@
                 <td>28</td>
                 <td>2020/05/01</td>
             </tr>
+            <tr>
+                <!-- <th class="table-checkbox"><input type="checkbox" name="" id=""></th>-->
+                <td>Sandia Perezosa</td>
+                <td>CEO</td>
+                <td>San Francisco</td>
+                <td>28</td>
+                <td>2020/05/01</td>
+            </tr>
+            <tr>
+                <!-- <th class="table-checkbox"><input type="checkbox" name="" id=""></th>-->
+                <td>Latino Soto</td>
+                <td>CEO</td>
+                <td>San Francisco</td>
+                <td>28</td>
+                <td>2020/05/01</td>
+            </tr>
             
         </tbody>
     </table>
@@ -246,7 +262,14 @@
 
     <script>
         
-        const dt = new DataTable('#tabla01');
+        const dt = new DataTable('#tabla01', {
+            showCheckboxes: true,
+            showHeaderButtons: 'always',
+            showSearch: true,
+            showEntries: true,
+            numberOfEntries: 5,
+            headerButtons: ['Uno', 'Dos', 'Tres']
+        });
         dt.createFromTable();
 
 
