@@ -17,11 +17,19 @@ interface ISettings{
     headerButtons?: string[]
 }
 
+interface IPagination{
+    total: number,
+    noItemsPerPage: number,
+    noPages: number,
+    actual: number,
+    pointer: number,
+    diff: number
+}
+
 class DataTable{
     _selector:string;
-    //_columns: string[];
-    //_items:object[];
     _data:IDataTableData;
+    _pagination: IPagination
     
 
     constructor(selector: string, settings: ISettings = {}){
@@ -33,14 +41,7 @@ class DataTable{
             headers: [],
             items: []
         };
-        /* this._settings = {
-            showCheckboxes: true,
-            showHeaderButtons: 'always',
-            showSearch: true,
-            showEntries: true,
-            numberOfEntries: 5,
-            headerButtons: ['Uno', 'Dos', 'Tres']
-        }; */
+        this._pagination = {total: 0, noItemsPerPage:0, noPages: 0, actual:0, pointer: 0, diff: 0};
     }
 
     public createFromTable(){
@@ -58,9 +59,7 @@ class DataTable{
         const trs = <HTMLElement[]>[].slice.call(el.querySelector('tbody')?.children!);
         
         headers.forEach(element => {
-            //this._columns.push(element.textContent!);
             this._data.headers!.push(element.textContent!);
-            //this._data.headers!.push(element.textContent!);
         });
 
         trs.forEach(x =>{
@@ -70,32 +69,57 @@ class DataTable{
                 row.push(td.textContent!)
                 
             });
-            //this._items.push(row);
             this._data.items!.push(row);
         });
         this._data.copy = [...this._data.items!];
-        console.log(this._data.headers, this._data.items); 
+
+        //configure pagination
+        this._pagination.total = this._data.items!.length;
+        this._pagination.noItemsPerPage = this._data.settings!.numberOfEntries!;
+        this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
+        this._pagination.actual = 1;
+        this._pagination.pointer = 0;
+        this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
+
+        console.log(this._pagination); 
     }
 
     private renderRows(container:HTMLElement){
         container.querySelector('tbody')!.innerHTML = '';
-        this._data.copy!.forEach(rows =>{
+
+        let i = 0;
+        for(i = this._pagination.pointer; i < this._pagination.actual * this._pagination.noItemsPerPage; i++){
+            if(i === this._pagination.total) break;
             let data = '';
-            (<string[]>rows).forEach(cell =>{
+            (<string[]>this._data.copy![i]).forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
             container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
-        });
+        }
     }
 
-    private makeTable(){
-        const old_elem = document.querySelector(this._selector)!;
-        const mainContainer:HTMLElement = document.createElement("div");
-        //mainContainer.classList.add('database-container');
-        mainContainer.setAttribute('id', this._selector);
-        document.querySelector(this._selector)?.replaceWith(mainContainer);
+    private renderPagesButtons(){
+        let pages:string = '';
+        if(this._pagination.noPages < 4){
+            
+        }else{
 
-        mainContainer.innerHTML = `
+        }
+        for(let i= 1; i <= this._pagination.noPages; i++){
+            if(i === this._pagination.actual){
+                pages += `<li><span class="active">${i}</span></li>`;
+            }else{
+                pages += `<li><button data-page="${i}">${i}</button></li>`;
+            }
+        }
+        return ` 
+            <ul>
+                ${pages}
+            </ul>`;
+    }
+
+    private createHTML(container: HTMLElement){
+        container.innerHTML = `
         <div class="datatable-container">
             <div class="header-tools">
                 <div class="tools">
@@ -129,31 +153,43 @@ class DataTable{
                 </div>
                 
                 <div class="pages">
-                    <ul>
-                        <li><span class="active">1</span></li>
-                        <li><button>2</button></li>
-                        <li><button>3</button></li>
-                        <li><button>4</button></li>
-                        <li><span>...</span></li>
-                        <li><button>9</button></li>
-                        <li><button>10</button></li>
-                    </ul>
+                   ${this.renderPagesButtons()}
                 </div>
             </div>
         </div>
         `;
-        //this._columns.forEach(header =>{
+    }
+
+    private makeTable(){
+        const old_elem = document.querySelector(this._selector)!;
+        const mainContainer:HTMLElement = document.createElement("div");
+        //mainContainer.classList.add('database-container');
+        mainContainer.setAttribute('id', this._selector);
+        document.querySelector(this._selector)?.replaceWith(mainContainer);
+
+        this.createHTML(mainContainer);
+        
         this._data.headers!.forEach(header =>{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
-        //this._items.forEach(rows =>{
-        this._data.copy!.forEach(rows =>{
+       this.renderRows(mainContainer);
+        /* this._data.copy!.forEach(rows =>{
             let data = '';
             (<string[]>rows).forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
             mainContainer.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
+        }); */
+
+        mainContainer.querySelectorAll('.pages li button').forEach(button => {
+            button.addEventListener('click', e => {
+                this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
+                this._pagination.pointer = (this._pagination.actual * this._pagination.noItemsPerPage) - this._pagination.noItemsPerPage;
+                //FIXME: se necesita arreglar la paginacion en los botones 
+                this.renderRows(mainContainer);
+                console.log(this._pagination);
+            });
         });
 
         mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
@@ -178,18 +214,6 @@ class DataTable{
                     }
                 }    
             }
-            /* this._data.items!.forEach(row => {
-                (<string[]>row).forEach(cell => {
-                    if(cell.toLowerCase().indexOf(query) > 0){
-                        isMatch = true;
-                    }
-                });
-                if(isMatch){
-                    res.push((<string[]>row));
-                    isMatch = false;
-                }
-            }); */
-            
             this._data.copy = [...res];
             this.renderRows(mainContainer);
             
