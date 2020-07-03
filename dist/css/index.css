@@ -101,6 +101,7 @@
 
 .datatable-container .datatable{
     border-collapse: collapse;
+    /*table-layout: fixed;*/
     width: 100%;
 }
 .datatable-container .datatable,
