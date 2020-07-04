@@ -74,24 +74,30 @@ class DataTable{
         this._data.copy = [...this._data.items!];
 
         //configure pagination
-        this._pagination.total = this._data.items!.length;
+        this.initPagination();
+        
+    }
+    private initPagination():void{
+        this._pagination.total = this._data.copy!.length;
         this._pagination.noItemsPerPage = this._data.settings!.numberOfEntries!;
         this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
         this._pagination.actual = 1;
         this._pagination.pointer = 0;
         this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
-
-        console.log(this._pagination); 
     }
 
     private renderRows(container:HTMLElement){
         container.querySelector('tbody')!.innerHTML = '';
 
         let i = 0;
-        for(i = this._pagination.pointer; i < this._pagination.actual * this._pagination.noItemsPerPage; i++){
+        const limit = this._pagination.actual * this._pagination.noItemsPerPage;
+
+        for(i = this._pagination.pointer; i < limit; i++){
+            
             if(i === this._pagination.total) break;
             let data = '';
-            (<string[]>this._data.copy![i]).forEach(cell =>{
+            
+             (<string[]>this._data.copy![i]).forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
             container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
@@ -196,17 +202,22 @@ class DataTable{
        this.renderRows(mainContainer);
 
         mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
+            //TODO: update buttons according to the search
             const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
             let res:string[][] = [];
 
             if(query === ''){
                 this._data.copy = [...this._data.items!];
+                this.initPagination();
                 this.renderRows(mainContainer);
+                this.renderPagesButtons(pagesContainer, mainContainer);
                 return false;
             }
 
-            for(let i:number = 0; i < this._data.items!.length; i++){
-                const row:string[] = <string[]>this._data.items![i];
+            
+            //find the match
+            for(let i:number = 0; i < this._data.copy!.length; i++){
+                const row:string[] = <string[]>this._data.copy![i];
 
                 for(let j:number = 0; j < row.length; j++){
                     const cell = row[j];
@@ -218,7 +229,10 @@ class DataTable{
                 }    
             }
             this._data.copy = [...res];
+            this.initPagination();
             this.renderRows(mainContainer);  
+            //this.initPagination();
+            this.renderPagesButtons(pagesContainer, mainContainer);
         });
 
     }
