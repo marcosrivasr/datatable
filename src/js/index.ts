@@ -98,10 +98,11 @@ class DataTable{
         }
     }
 
-    private renderPagesButtons(){
+    private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
+        container.innerHTML = '';
         let pages:string = '';
         if(this._pagination.noPages < 4){
-            
+            // TODO: redefine UI to not show the dots
         }else{
 
         }
@@ -112,10 +113,18 @@ class DataTable{
                 pages += `<li><button data-page="${i}">${i}</button></li>`;
             }
         }
-        return ` 
-            <ul>
-                ${pages}
-            </ul>`;
+
+        container.innerHTML = `<ul>${pages}</ul>`;
+
+        //events for the buttons
+        mainContainer.querySelectorAll('.pages li button').forEach(button => {
+            button.addEventListener('click', e => {
+                this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
+                this._pagination.pointer = (this._pagination.actual * this._pagination.noItemsPerPage) - this._pagination.noItemsPerPage;
+                this.renderRows(mainContainer);
+                this.renderPagesButtons(container, mainContainer);
+            });
+        });
     }
 
     private createHTML(container: HTMLElement){
@@ -153,7 +162,6 @@ class DataTable{
                 </div>
                 
                 <div class="pages">
-                   ${this.renderPagesButtons()}
                 </div>
             </div>
         </div>
@@ -163,34 +171,19 @@ class DataTable{
     private makeTable(){
         const old_elem = document.querySelector(this._selector)!;
         const mainContainer:HTMLElement = document.createElement("div");
-        //mainContainer.classList.add('database-container');
+
         mainContainer.setAttribute('id', this._selector);
         document.querySelector(this._selector)?.replaceWith(mainContainer);
 
         this.createHTML(mainContainer);
+        const pagesContainer = <HTMLElement>document.querySelector('.footer-tools .pages');
+        this.renderPagesButtons(pagesContainer, mainContainer);
         
         this._data.headers!.forEach(header =>{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
        this.renderRows(mainContainer);
-        /* this._data.copy!.forEach(rows =>{
-            let data = '';
-            (<string[]>rows).forEach(cell =>{
-                data += `<td>${cell}</td>`
-            });
-            mainContainer.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
-        }); */
-
-        mainContainer.querySelectorAll('.pages li button').forEach(button => {
-            button.addEventListener('click', e => {
-                this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
-                this._pagination.pointer = (this._pagination.actual * this._pagination.noItemsPerPage) - this._pagination.noItemsPerPage;
-                //FIXME: se necesita arreglar la paginacion en los botones 
-                this.renderRows(mainContainer);
-                console.log(this._pagination);
-            });
-        });
 
         mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
             const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
