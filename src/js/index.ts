@@ -98,21 +98,31 @@ class DataTable{
         }
     }
 
+    private getIteratedButtons(start:number, end:number):string{
+        let res:string = '';
+        for(let i = start; i <= end; i++){
+            if(i === this._pagination.actual){
+                res += `<li><span class="active">${i}</span></li>`;
+            }else{
+                res += `<li><button data-page="${i}">${i}</button></li>`;
+            }
+        }
+        return res;
+    }
     private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
         container.innerHTML = '';
         let pages:string = '';
-        if(this._pagination.noPages < 4){
-            // TODO: redefine UI to not show the dots
+        if(this._pagination.noPages < 8){
+            pages += this.getIteratedButtons(1, this._pagination.noPages);
         }else{
+            // 1 2 3 4 ... 8 9
+            pages += this.getIteratedButtons(1, 4);
+            
+            pages += `<li>...</li>`;
 
+            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
         }
-        for(let i= 1; i <= this._pagination.noPages; i++){
-            if(i === this._pagination.actual){
-                pages += `<li><span class="active">${i}</span></li>`;
-            }else{
-                pages += `<li><button data-page="${i}">${i}</button></li>`;
-            }
-        }
+        
 
         container.innerHTML = `<ul>${pages}</ul>`;
 
@@ -188,7 +198,7 @@ class DataTable{
         mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
             const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
             let res:string[][] = [];
-            let isMatch:boolean = false;
+
             if(query === ''){
                 this._data.copy = [...this._data.items!];
                 this.renderRows(mainContainer);
@@ -208,8 +218,7 @@ class DataTable{
                 }    
             }
             this._data.copy = [...res];
-            this.renderRows(mainContainer);
-            
+            this.renderRows(mainContainer);  
         });
 
     }
