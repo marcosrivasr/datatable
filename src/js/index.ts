@@ -5,9 +5,7 @@ interface IDataTableData{
     copy?: object[],
     settings?: ISettings
 }
-interface IItem{
-    item: string | number;
-}
+
 interface ISettings{
     showCheckboxes?: boolean,
     showHeaderButtons?:boolean,
@@ -202,38 +200,43 @@ class DataTable{
        this.renderRows(mainContainer);
 
         mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
-            //TODO: update buttons according to the search
             const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
-            let res:string[][] = [];
 
             if(query === ''){
                 this._data.copy = [...this._data.items!];
                 this.initPagination();
                 this.renderRows(mainContainer);
                 this.renderPagesButtons(pagesContainer, mainContainer);
-                return false;
+                return;
             }
 
-            
-            //find the match
-            for(let i:number = 0; i < this._data.copy!.length; i++){
-                const row:string[] = <string[]>this._data.copy![i];
+            this.search(e, query);
 
-                for(let j:number = 0; j < row.length; j++){
-                    const cell = row[j];
-
-                    if(cell.toLowerCase().indexOf(query) >= 0){
-                        res.push(row);
-                        break;
-                    }
-                }    
-            }
-            this._data.copy = [...res];
             this.initPagination();
             this.renderRows(mainContainer);  
-            //this.initPagination();
             this.renderPagesButtons(pagesContainer, mainContainer);
         });
 
+    }
+
+    private search(e:Event, query:string):void{
+        //TODO: update buttons according to the search
+        let res:string[][] = [];
+        
+        this._data.copy = [...this._data.items!];
+        //find the match
+        for(let i:number = 0; i < this._data.copy!.length; i++){
+            const row:string[] = <string[]>this._data.copy![i];
+
+            for(let j:number = 0; j < row.length; j++){
+                const cell = row[j];
+
+                if(cell.toLowerCase().indexOf(query) >= 0){
+                    res.push(row);
+                    break;
+                }
+            }    
+        }
+        this._data.copy = [...res];
     }
 }
