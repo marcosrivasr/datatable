@@ -44,17 +44,20 @@ var DataTable = /** @class */ (function () {
         });
         this._data.copy = __spreadArrays(this._data.items);
         //configure pagination
-        this._pagination.total = this._data.items.length;
+        this.initPagination();
+    };
+    DataTable.prototype.initPagination = function () {
+        this._pagination.total = this._data.copy.length;
         this._pagination.noItemsPerPage = this._data.settings.numberOfEntries;
         this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
         this._pagination.actual = 1;
         this._pagination.pointer = 0;
         this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
-        console.log(this._pagination);
     };
     DataTable.prototype.renderRows = function (container) {
         container.querySelector('tbody').innerHTML = '';
         var i = 0;
+        var limit = this._pagination.actual * this._pagination.noItemsPerPage;
         var _loop_1 = function () {
             if (i === this_1._pagination.total)
                 return "break";
@@ -65,82 +68,96 @@ var DataTable = /** @class */ (function () {
             container.querySelector('tbody').innerHTML += "<tr>" + data + "</tr>";
         };
         var this_1 = this;
-        for (i = this._pagination.pointer; i < this._pagination.actual * this._pagination.noItemsPerPage; i++) {
+        for (i = this._pagination.pointer; i < limit; i++) {
             var state_1 = _loop_1();
             if (state_1 === "break")
                 break;
         }
     };
-    DataTable.prototype.renderPagesButtons = function () {
-        var pages = '';
-        if (this._pagination.noPages < 4) {
-        }
-        else {
-        }
-        for (var i = 1; i <= this._pagination.noPages; i++) {
+    DataTable.prototype.getIteratedButtons = function (start, end) {
+        var res = '';
+        for (var i = start; i <= end; i++) {
             if (i === this._pagination.actual) {
-                pages += "<li><span class=\"active\">" + i + "</span></li>";
+                res += "<li><span class=\"active\">" + i + "</span></li>";
             }
             else {
-                pages += "<li><button data-page=\"" + i + "\">" + i + "</button></li>";
+                res += "<li><button data-page=\"" + i + "\">" + i + "</button></li>";
             }
         }
-        return " \n            <ul>\n                " + pages + "\n            </ul>";
+        return res;
+    };
+    DataTable.prototype.renderPagesButtons = function (container, mainContainer) {
+        var _this = this;
+        container.innerHTML = '';
+        var pages = '';
+        if (this._pagination.noPages < 8) {
+            pages += this.getIteratedButtons(1, this._pagination.noPages);
+        }
+        else {
+            // 1 2 3 4 ... 8 9
+            pages += this.getIteratedButtons(1, 4);
+            pages += "<li>...</li>";
+            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
+        }
+        container.innerHTML = "<ul>" + pages + "</ul>";
+        //events for the buttons
+        mainContainer.querySelectorAll('.pages li button').forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                _this._pagination.actual = parseInt(e.target.getAttribute('data-page'));
+                _this._pagination.pointer = (_this._pagination.actual * _this._pagination.noItemsPerPage) - _this._pagination.noItemsPerPage;
+                _this.renderRows(mainContainer);
+                _this.renderPagesButtons(container, mainContainer);
+            });
+        });
     };
     DataTable.prototype.createHTML = function (container) {
-        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul>\n                        <li><button>New</button></li>\n                        <li><button>Edit</button></li>\n                        <li><button>Remove</button></li>\n                    </ul>\n                </div>\n                <div class=\"search\">\n                    <input type=\"text\" class=\"search-input\">\n                </div>\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"15\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                   " + this.renderPagesButtons() + "\n                </div>\n            </div>\n        </div>\n        ";
+        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul>\n                        <li><button>New</button></li>\n                        <li><button>Edit</button></li>\n                        <li><button>Remove</button></li>\n                    </ul>\n                </div>\n                <div class=\"search\">\n                    <input type=\"text\" class=\"search-input\">\n                </div>\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"15\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                </div>\n            </div>\n        </div>\n        ";
     };
     DataTable.prototype.makeTable = function () {
         var _this = this;
         var _a;
         var old_elem = document.querySelector(this._selector);
         var mainContainer = document.createElement("div");
-        //mainContainer.classList.add('database-container');
         mainContainer.setAttribute('id', this._selector);
         (_a = document.querySelector(this._selector)) === null || _a === void 0 ? void 0 : _a.replaceWith(mainContainer);
         this.createHTML(mainContainer);
+        var pagesContainer = document.querySelector('.footer-tools .pages');
+        this.renderPagesButtons(pagesContainer, mainContainer);
         this._data.headers.forEach(function (header) {
             mainContainer.querySelector('thead tr').innerHTML += "<th>" + header + "</th>";
         });
         this.renderRows(mainContainer);
-        /* this._data.copy!.forEach(rows =>{
-            let data = '';
-            (<string[]>rows).forEach(cell =>{
-                data += `<td>${cell}</td>`
-            });
-            mainContainer.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
-        }); */
-        mainContainer.querySelectorAll('.pages li button').forEach(function (button) {
-            button.addEventListener('click', function (e) {
-                _this._pagination.actual = parseInt(e.target.getAttribute('data-page'));
-                _this._pagination.pointer = (_this._pagination.actual * _this._pagination.noItemsPerPage) - _this._pagination.noItemsPerPage;
-                //FIXME: se necesita arreglar la paginacion en los botones 
-                _this.renderRows(mainContainer);
-                console.log(_this._pagination);
-            });
-        });
         mainContainer.querySelector('.search-input').addEventListener('input', function (e) {
             var query = e.target.value.trim().toLowerCase();
-            var res = [];
-            var isMatch = false;
             if (query === '') {
                 _this._data.copy = __spreadArrays(_this._data.items);
+                _this.initPagination();
                 _this.renderRows(mainContainer);
-                return false;
+                _this.renderPagesButtons(pagesContainer, mainContainer);
+                return;
             }
-            for (var i = 0; i < _this._data.items.length; i++) {
-                var row = _this._data.items[i];
-                for (var j = 0; j < row.length; j++) {
-                    var cell = row[j];
-                    if (cell.toLowerCase().indexOf(query) >= 0) {
-                        res.push(row);
-                        break;
-                    }
+            _this.search(e, query);
+            _this.initPagination();
+            _this.renderRows(mainContainer);
+            _this.renderPagesButtons(pagesContainer, mainContainer);
+        });
+    };
+    DataTable.prototype.search = function (e, query) {
+        //TODO: update buttons according to the search
+        var res = [];
+        this._data.copy = __spreadArrays(this._data.items);
+        //find the match
+        for (var i = 0; i < this._data.copy.length; i++) {
+            var row = this._data.copy[i];
+            for (var j = 0; j < row.length; j++) {
+                var cell = row[j];
+                if (cell.toLowerCase().indexOf(query) >= 0) {
+                    res.push(row);
+                    break;
                 }
             }
-            _this._data.copy = __spreadArrays(res);
-            _this.renderRows(mainContainer);
-        });
+        }
+        this._data.copy = __spreadArrays(res);
     };
     return DataTable;
 }());
