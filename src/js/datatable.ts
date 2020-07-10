@@ -143,15 +143,22 @@ class DataTable{
         });
     }
 
+    private renderHeaderButtons():string{
+        let html = '';
+        this._data.settings!.headerButtons!.forEach(button =>{
+            html += `<li><button>${button}</button></li>`;
+        });
+
+        return html;
+    }
+
     private createHTML(container: HTMLElement){
         container.innerHTML = `
         <div class="datatable-container">
             <div class="header-tools">
                 <div class="tools">
                     <ul>
-                        <li><button>New</button></li>
-                        <li><button>Edit</button></li>
-                        <li><button>Remove</button></li>
+                        ${this.renderHeaderButtons()}
                     </ul>
                 </div>
                 ${(this._data.settings?.showSearch)? `<div class="search">

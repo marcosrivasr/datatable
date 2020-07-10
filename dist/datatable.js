@@ -25,12 +25,13 @@ var DataTable = /** @class */ (function () {
     };
     DataTable.prototype.tokenizeTable = function () {
         var _this = this;
-        var _a, _b;
+        var _a, _b, _c;
         var el = document.querySelector(this._selector);
         if ((el === null || el === void 0 ? void 0 : el.tagName.toLowerCase()) != 'table')
             throw new Error('Table is required. ' + (el === null || el === void 0 ? void 0 : el.tagName));
         var headers = [].slice.call((_a = el.querySelector('thead tr')) === null || _a === void 0 ? void 0 : _a.children);
         var trs = [].slice.call((_b = el.querySelector('tbody')) === null || _b === void 0 ? void 0 : _b.children);
+        ((_c = this._data.settings) === null || _c === void 0 ? void 0 : _c.showCheckboxes) ? this._data.headers.push('') : ''; //empty cell for the checkboxes
         headers.forEach(function (element) {
             _this._data.headers.push(element.textContent);
         });
@@ -55,6 +56,7 @@ var DataTable = /** @class */ (function () {
         this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
     };
     DataTable.prototype.renderRows = function (container) {
+        var _a;
         container.querySelector('tbody').innerHTML = '';
         var i = 0;
         var limit = this._pagination.actual * this._pagination.noItemsPerPage;
@@ -62,6 +64,8 @@ var DataTable = /** @class */ (function () {
             if (i === this_1._pagination.total)
                 return "break";
             var data = '';
+            //checkbox added
+            ((_a = this_1._data.settings) === null || _a === void 0 ? void 0 : _a.showCheckboxes) ? data += "<td class=\"table-checkbox\"><input type=\"checkbox\" name=\"\" id=\"\"></td>" : '';
             this_1._data.copy[i].forEach(function (cell) {
                 data += "<td>" + cell + "</td>";
             });
@@ -110,8 +114,16 @@ var DataTable = /** @class */ (function () {
             });
         });
     };
+    DataTable.prototype.renderHeaderButtons = function () {
+        var html = '';
+        this._data.settings.headerButtons.forEach(function (button) {
+            html += "<li><button>" + button + "</button></li>";
+        });
+        return html;
+    };
     DataTable.prototype.createHTML = function (container) {
-        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul>\n                        <li><button>New</button></li>\n                        <li><button>Edit</button></li>\n                        <li><button>Remove</button></li>\n                    </ul>\n                </div>\n                <div class=\"search\">\n                    <input type=\"text\" class=\"search-input\">\n                </div>\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"15\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                </div>\n            </div>\n        </div>\n        ";
+        var _a;
+        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul>\n                        " + this.renderHeaderButtons() + "\n                    </ul>\n                </div>\n                " + (((_a = this._data.settings) === null || _a === void 0 ? void 0 : _a.showSearch) ? "<div class=\"search\">\n                <input type=\"text\" class=\"search-input\">\n            </div>" : '') + "\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"15\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                </div>\n            </div>\n        </div>\n        ";
     };
     DataTable.prototype.makeTable = function () {
         var _this = this;
@@ -127,20 +139,22 @@ var DataTable = /** @class */ (function () {
             mainContainer.querySelector('thead tr').innerHTML += "<th>" + header + "</th>";
         });
         this.renderRows(mainContainer);
-        mainContainer.querySelector('.search-input').addEventListener('input', function (e) {
-            var query = e.target.value.trim().toLowerCase();
-            if (query === '') {
-                _this._data.copy = __spreadArrays(_this._data.items);
+        if (this._data.settings.showSearch) {
+            mainContainer.querySelector('.search-input').addEventListener('input', function (e) {
+                var query = e.target.value.trim().toLowerCase();
+                if (query === '') {
+                    _this._data.copy = __spreadArrays(_this._data.items);
+                    _this.initPagination();
+                    _this.renderRows(mainContainer);
+                    _this.renderPagesButtons(pagesContainer, mainContainer);
+                    return;
+                }
+                _this.search(e, query);
                 _this.initPagination();
                 _this.renderRows(mainContainer);
                 _this.renderPagesButtons(pagesContainer, mainContainer);
-                return;
-            }
-            _this.search(e, query);
-            _this.initPagination();
-            _this.renderRows(mainContainer);
-            _this.renderPagesButtons(pagesContainer, mainContainer);
-        });
+            });
+        }
     };
     DataTable.prototype.search = function (e, query) {
         //TODO: update buttons according to the search
