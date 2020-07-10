@@ -1,3 +1,4 @@
-# Datatable
+# datatable
+DataTable implementation using Vanilla Javascript 
 
-A simple vanilla Javascript datatable to convert your tables into smart tables to handle data.
+![Datatable](resources/data-table.jpg)
