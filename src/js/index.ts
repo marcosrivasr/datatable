@@ -56,6 +56,7 @@ class DataTable{
         const headers = <HTMLElement[]>[].slice.call(el.querySelector('thead tr')?.children!);
         const trs = <HTMLElement[]>[].slice.call(el.querySelector('tbody')?.children!);
         
+        (this._data.settings?.showCheckboxes)? this._data.headers!.push('') : ''; //empty cell for the checkboxes
         headers.forEach(element => {
             this._data.headers!.push(element.textContent!);
         });
@@ -94,8 +95,9 @@ class DataTable{
             
             if(i === this._pagination.total) break;
             let data = '';
-            
-             (<string[]>this._data.copy![i]).forEach(cell =>{
+            //checkbox added
+            (this._data.settings?.showCheckboxes)? data += `<td class="table-checkbox"><input type="checkbox" name="" id=""></td>` : '';
+            (<string[]>this._data.copy![i]).forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
             container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
@@ -152,9 +154,9 @@ class DataTable{
                         <li><button>Remove</button></li>
                     </ul>
                 </div>
-                <div class="search">
-                    <input type="text" class="search-input">
-                </div>
+                ${(this._data.settings?.showSearch)? `<div class="search">
+                <input type="text" class="search-input">
+            </div>` : ''}
             </div>
             <table class="datatable">
                 <thead>
@@ -197,26 +199,27 @@ class DataTable{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
-       this.renderRows(mainContainer);
+        this.renderRows(mainContainer);
 
-        mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
-            const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
+        if(this._data.settings!.showSearch){
+            mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
+                const query = (<HTMLInputElement>e.target!).value.trim().toLowerCase();
 
-            if(query === ''){
-                this._data.copy = [...this._data.items!];
+                if(query === ''){
+                    this._data.copy = [...this._data.items!];
+                    this.initPagination();
+                    this.renderRows(mainContainer);
+                    this.renderPagesButtons(pagesContainer, mainContainer);
+                    return;
+                }
+
+                this.search(e, query);
+
                 this.initPagination();
-                this.renderRows(mainContainer);
+                this.renderRows(mainContainer);  
                 this.renderPagesButtons(pagesContainer, mainContainer);
-                return;
-            }
-
-            this.search(e, query);
-
-            this.initPagination();
-            this.renderRows(mainContainer);  
-            this.renderPagesButtons(pagesContainer, mainContainer);
-        });
-
+            });
+        }
     }
 
     private search(e:Event, query:string):void{
