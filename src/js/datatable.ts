@@ -76,6 +76,7 @@ class DataTable{
         this.initPagination();
         
     }
+
     private initPagination():void{
         this._pagination.total = this._data.copy!.length;
         this._pagination.noItemsPerPage = this._data.settings!.numberOfEntries!;
@@ -133,6 +134,7 @@ class DataTable{
         container.innerHTML = `<ul>${pages}</ul>`;
 
         //events for the buttons
+        //TODO: add feature to move the buttons so the hidden ones can be shown
         mainContainer.querySelectorAll('.pages li button').forEach(button => {
             button.addEventListener('click', e => {
                 this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
@@ -177,7 +179,7 @@ class DataTable{
                 <div class="list-items">
                     Show
                     <select name="n-entries" id="n-enties" class="n-entries">
-                        <option value="15">5</option>
+                        <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="15">15</option>
                     </select>
@@ -227,10 +229,26 @@ class DataTable{
                 this.renderPagesButtons(pagesContainer, mainContainer);
             });
         }
+
+        //event for list of entries
+        mainContainer.querySelector('#n-enties')!.addEventListener('change', e =>{
+            /*FIXME: 
+                - pages updated but not working
+                - makeTable doesn't update UI
+                
+            */
+            const numberOfEntries:number = parseInt((<HTMLSelectElement>e.target).value);
+            this._data.settings!.numberOfEntries = numberOfEntries;
+            
+            this.initPagination();
+            console.log(this._pagination);
+            this.makeTable();
+            this.renderRows(mainContainer);
+        });
     }
 
     private search(e:Event, query:string):void{
-        //TODO: update buttons according to the search
+        
         let res:string[][] = [];
         
         this._data.copy = [...this._data.items!];
