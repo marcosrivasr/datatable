@@ -25,15 +25,13 @@ interface IPagination{
 }
 
 class DataTable{
-    _selector:string;
-    _data:IDataTableData;
-    _pagination: IPagination
+    private _selector:string;
+    private _data:IDataTableData;
+    private _pagination: IPagination
     
 
     constructor(selector: string, settings: ISettings = {}){
         this._selector = selector;
-        //this._columns = [];
-        //this._items = [];
         this._data = {
             settings: settings,
             headers: [],
@@ -208,7 +206,9 @@ class DataTable{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
+        this.initPagination();
         this.renderRows(mainContainer);
+        this.renderPagesButtons(pagesContainer, mainContainer);
 
         if(this._data.settings!.showSearch){
             mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
@@ -232,19 +232,17 @@ class DataTable{
 
         //event for list of entries
         mainContainer.querySelector('#n-enties')!.addEventListener('change', e =>{
-            /*FIXME: 
-                - pages updated but not working
-                - makeTable doesn't update UI
-                
-            */
             const numberOfEntries:number = parseInt((<HTMLSelectElement>e.target).value);
             this._data.settings!.numberOfEntries = numberOfEntries;
-            
-            this.initPagination();
-            console.log(this._pagination);
             this.makeTable();
+            this.initPagination();
             this.renderRows(mainContainer);
+            this.renderPagesButtons(pagesContainer, mainContainer);
         });
+    }
+
+    private onChangeEntries(e: Event){
+        
     }
 
     private search(e:Event, query:string):void{
