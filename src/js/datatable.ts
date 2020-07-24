@@ -140,23 +140,6 @@ class DataTable{
             pages += this.getIteratedButtons(limI, this._pagination.noPages);
         }
 
-        
-
-        
-        //pages += `<li>...</li>`;
-        //pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        /* if(this._pagination.noPages < 8){
-            pages += this.getIteratedButtons(1, this._pagination.noPages);
-        }else{
-            // 1 2 3 4 ... 8 9
-            pages += this.getIteratedButtons(1, this._pagination.noButtonsBeforeDots);
-            
-            pages += `<li>...</li>`;
-
-            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        } */ 
-        
-
         container.innerHTML = `<ul>${pages}</ul>`;
 
         //events for the buttons
