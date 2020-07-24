@@ -10,14 +10,12 @@ var DataTable = /** @class */ (function () {
     function DataTable(selector, settings) {
         if (settings === void 0) { settings = {}; }
         this._selector = selector;
-        //this._columns = [];
-        //this._items = [];
         this._data = {
             settings: settings,
             headers: [],
             items: []
         };
-        this._pagination = { total: 0, noItemsPerPage: 0, noPages: 0, actual: 0, pointer: 0, diff: 0 };
+        this._pagination = { total: 0, noItemsPerPage: 0, noPages: 0, actual: 0, pointer: 0, diff: 0, lastPageBeforeDots: 0, noButtonsBeforeDots: 4 };
     }
     DataTable.prototype.createFromTable = function () {
         this.tokenizeTable();
@@ -94,14 +92,24 @@ var DataTable = /** @class */ (function () {
         var _this = this;
         container.innerHTML = '';
         var pages = '';
-        if (this._pagination.noPages < 8) {
-            pages += this.getIteratedButtons(1, this._pagination.noPages);
+        var buttonsToShow = this._pagination.noButtonsBeforeDots;
+        var actualIndex = this._pagination.actual;
+        var limI = Math.max(actualIndex - 2, 1);
+        var limS = Math.min(actualIndex + 2, this._pagination.noPages);
+        var missinButtons = buttonsToShow - (limS - limI);
+        if (Math.max(limI - missinButtons, 0) != 0) {
+            limI = limI - missinButtons;
         }
-        else {
-            // 1 2 3 4 ... 8 9
-            pages += this.getIteratedButtons(1, 4);
+        else if (Math.min(limS + missinButtons, this._pagination.noPages) != this._pagination.noPages) {
+            limS = limS + missinButtons;
+        }
+        if (limS < (this._pagination.noPages - 2)) {
+            pages += this.getIteratedButtons(limI, limS);
             pages += "<li>...</li>";
             pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
+        }
+        else {
+            pages += this.getIteratedButtons(limI, this._pagination.noPages);
         }
         container.innerHTML = "<ul>" + pages + "</ul>";
         //events for the buttons
@@ -139,7 +147,9 @@ var DataTable = /** @class */ (function () {
         this._data.headers.forEach(function (header) {
             mainContainer.querySelector('thead tr').innerHTML += "<th>" + header + "</th>";
         });
+        this.initPagination();
         this.renderRows(mainContainer);
+        this.renderPagesButtons(pagesContainer, mainContainer);
         if (this._data.settings.showSearch) {
             mainContainer.querySelector('.search-input').addEventListener('input', function (e) {
                 var query = e.target.value.trim().toLowerCase();
@@ -158,18 +168,15 @@ var DataTable = /** @class */ (function () {
         }
         //event for list of entries
         mainContainer.querySelector('#n-enties').addEventListener('change', function (e) {
-            /*FIXME:
-                - pages updated but not working
-                - makeTable doesn't update UI
-                
-            */
             var numberOfEntries = parseInt(e.target.value);
             _this._data.settings.numberOfEntries = numberOfEntries;
-            _this.initPagination();
-            console.log(_this._pagination);
             _this.makeTable();
+            _this.initPagination();
             _this.renderRows(mainContainer);
+            _this.renderPagesButtons(pagesContainer, mainContainer);
         });
+    };
+    DataTable.prototype.onChangeEntries = function (e) {
     };
     DataTable.prototype.search = function (e, query) {
         var res = [];
