@@ -16,12 +16,14 @@ interface ISettings{
 }
 
 interface IPagination{
-    total: number,
+    total: number, //
     noItemsPerPage: number,
     noPages: number,
     actual: number,
     pointer: number,
-    diff: number
+    diff: number,
+    lastPageBeforeDots:number,
+    noButtonsBeforeDots:number,
 }
 
 class DataTable{
@@ -37,7 +39,7 @@ class DataTable{
             headers: [],
             items: []
         };
-        this._pagination = {total: 0, noItemsPerPage:0, noPages: 0, actual:0, pointer: 0, diff: 0};
+        this._pagination = {total: 0, noItemsPerPage:0, noPages: 0, actual:0, pointer: 0, diff: 0, lastPageBeforeDots: 0, noButtonsBeforeDots: 4};
     }
 
     public createFromTable(){
@@ -117,16 +119,42 @@ class DataTable{
     private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
         container.innerHTML = '';
         let pages:string = '';
-        if(this._pagination.noPages < 8){
+
+        const buttonsToShow:number = this._pagination.noButtonsBeforeDots;
+        const actualIndex:number = this._pagination.actual;
+        let limI:number = Math.max(actualIndex - 2, 1); 
+        let limS:number = Math.min(actualIndex + 2, this._pagination.noPages);
+        const missinButtons = buttonsToShow - (limS - limI);
+
+        if(Math.max(limI-missinButtons, 0) != 0){
+            limI = limI - missinButtons;
+        }else if(Math.min(limS + missinButtons, this._pagination.noPages) != this._pagination.noPages){
+            limS = limS + missinButtons;
+        }
+
+        if(limS < (this._pagination.noPages - 2)){
+            pages += this.getIteratedButtons(limI, limS);
+            pages += `<li>...</li>`;
+            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
+        }else{
+            pages += this.getIteratedButtons(limI, this._pagination.noPages);
+        }
+
+        
+
+        
+        //pages += `<li>...</li>`;
+        //pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
+        /* if(this._pagination.noPages < 8){
             pages += this.getIteratedButtons(1, this._pagination.noPages);
         }else{
             // 1 2 3 4 ... 8 9
-            pages += this.getIteratedButtons(1, 4);
+            pages += this.getIteratedButtons(1, this._pagination.noButtonsBeforeDots);
             
             pages += `<li>...</li>`;
 
             pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        }
+        } */ 
         
 
         container.innerHTML = `<ul>${pages}</ul>`;
