@@ -32,7 +32,13 @@ class DataTable{
     private _pagination: IPagination
     
 
-    constructor(selector: string, settings: ISettings = {}){
+    constructor(selector: string, settings: ISettings = {
+        showCheckboxes: true,
+        showHeaderButtons: false, //FIXME: it doesnt work
+        showSearch: true,
+        showEntries: true,
+        numberOfEntries: 5,
+        headerButtons: ['qwe', 'dfdf', 'asd']}){
         this._selector = selector;
         this._data = {
             settings: settings,
@@ -156,11 +162,14 @@ class DataTable{
 
     private renderHeaderButtons():string{
         let html = '';
-        this._data.settings!.headerButtons!.forEach(button =>{
-            html += `<li><button>${button}</button></li>`;
-        });
-
-        return html;
+        if(this._data.settings!.showHeaderButtons){
+            this._data.settings!.headerButtons!.forEach(button =>{
+                html += `<li><button>${button}</button></li>`;
+            });
+            return html;
+        }else{
+            return html;
+        }
     }
 
     private createHTML(container: HTMLElement){
