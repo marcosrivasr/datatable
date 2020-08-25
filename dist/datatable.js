@@ -8,7 +8,13 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 };
 var DataTable = /** @class */ (function () {
     function DataTable(selector, settings) {
-        if (settings === void 0) { settings = {}; }
+        if (settings === void 0) { settings = {
+            showCheckboxes: true,
+            showHeaderButtons: true,
+            showSearch: true,
+            numberOfEntries: 5,
+            headerButtons: ['qwe', 'dfdf', 'asd']
+        }; }
         this._selector = selector;
         this._data = {
             settings: settings,
@@ -125,10 +131,15 @@ var DataTable = /** @class */ (function () {
     };
     DataTable.prototype.renderHeaderButtons = function () {
         var html = '';
-        this._data.settings.headerButtons.forEach(function (button) {
-            html += "<li><button>" + button + "</button></li>";
-        });
-        return html;
+        if (this._data.settings.showHeaderButtons) {
+            this._data.settings.headerButtons.forEach(function (button) {
+                html += "<li><button>" + button + "</button></li>";
+            });
+            return html;
+        }
+        else {
+            return html;
+        }
     };
     DataTable.prototype.createHTML = function (container) {
         var _a;

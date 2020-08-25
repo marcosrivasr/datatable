@@ -10,7 +10,6 @@ interface ISettings{
     showCheckboxes?: boolean,
     showHeaderButtons?:boolean,
     showSearch?: boolean,
-    showEntries?: boolean,
     numberOfEntries?: number,
     headerButtons?: string[]
 }
@@ -34,11 +33,11 @@ class DataTable{
 
     constructor(selector: string, settings: ISettings = {
         showCheckboxes: true,
-        showHeaderButtons: false, //FIXME: it doesnt work
+        showHeaderButtons: true, //FIXME: it doesnt work
         showSearch: true,
-        showEntries: true,
         numberOfEntries: 5,
-        headerButtons: ['qwe', 'dfdf', 'asd']}){
+        headerButtons: ['qwe', 'dfdf', 'asd']
+    }){
         this._selector = selector;
         this._data = {
             settings: settings,
