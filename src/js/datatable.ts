@@ -10,7 +10,6 @@ interface ISettings{
     showCheckboxes?: boolean,
     showHeaderButtons?:boolean,
     showSearch?: boolean,
-    showEntries?: boolean,
     numberOfEntries?: number,
     headerButtons?: string[]
 }
