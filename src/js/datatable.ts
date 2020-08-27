@@ -127,6 +127,7 @@ class DataTable{
 
         const buttonsToShow:number = this._pagination.noButtonsBeforeDots;
         const actualIndex:number = this._pagination.actual;
+        
         let limI:number = Math.max(actualIndex - 2, 1); 
         let limS:number = Math.min(actualIndex + 2, this._pagination.noPages);
         const missinButtons = buttonsToShow - (limS - limI);
