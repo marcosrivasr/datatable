@@ -73,41 +73,4 @@ class Pagination{
     public get noItemsPerPage(){
         return this._pagination.noItemsPerPage;
     }
-
-    private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
-        container.innerHTML = '';
-        let pages:string = '';
-
-        const buttonsToShow:number = this._pagination.noButtonsBeforeDots;
-        const actualIndex:number = this._pagination.actual;
-        let limI:number = Math.max(actualIndex - 2, 1); 
-        let limS:number = Math.min(actualIndex + 2, this._pagination.noPages);
-        const missinButtons = buttonsToShow - (limS - limI);
-
-        if(Math.max(limI-missinButtons, 0) != 0){
-            limI = limI - missinButtons;
-        }else if(Math.min(limS + missinButtons, this._pagination.noPages) != this._pagination.noPages){
-            limS = limS + missinButtons;
-        }
-
-        if(limS < (this._pagination.noPages - 2)){
-            pages += this.getIteratedButtons(limI, limS);
-            pages += `<li>...</li>`;
-            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        }else{
-            pages += this.getIteratedButtons(limI, this._pagination.noPages);
-        }
-
-        container.innerHTML = `<ul>${pages}</ul>`;
-
-        //events for the buttons
-        mainContainer.querySelectorAll('.pages li button').forEach(button => {
-            button.addEventListener('click', e => {
-                this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
-                this._pagination.pointer = (this._pagination.actual * this._pagination.noItemsPerPage) - this._pagination.noItemsPerPage;
-                this.renderRows(mainContainer);
-                this.renderPagesButtons(container, mainContainer);
-            });
-        });
-    }
 }
