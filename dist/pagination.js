@@ -78,39 +78,5 @@ var Pagination = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Pagination.prototype.renderPagesButtons = function (container, mainContainer) {
-        var _this = this;
-        container.innerHTML = '';
-        var pages = '';
-        var buttonsToShow = this._pagination.noButtonsBeforeDots;
-        var actualIndex = this._pagination.actual;
-        var limI = Math.max(actualIndex - 2, 1);
-        var limS = Math.min(actualIndex + 2, this._pagination.noPages);
-        var missinButtons = buttonsToShow - (limS - limI);
-        if (Math.max(limI - missinButtons, 0) != 0) {
-            limI = limI - missinButtons;
-        }
-        else if (Math.min(limS + missinButtons, this._pagination.noPages) != this._pagination.noPages) {
-            limS = limS + missinButtons;
-        }
-        if (limS < (this._pagination.noPages - 2)) {
-            pages += this.getIteratedButtons(limI, limS);
-            pages += "<li>...</li>";
-            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        }
-        else {
-            pages += this.getIteratedButtons(limI, this._pagination.noPages);
-        }
-        container.innerHTML = "<ul>" + pages + "</ul>";
-        //events for the buttons
-        mainContainer.querySelectorAll('.pages li button').forEach(function (button) {
-            button.addEventListener('click', function (e) {
-                _this._pagination.actual = parseInt(e.target.getAttribute('data-page'));
-                _this._pagination.pointer = (_this._pagination.actual * _this._pagination.noItemsPerPage) - _this._pagination.noItemsPerPage;
-                _this.renderRows(mainContainer);
-                _this.renderPagesButtons(container, mainContainer);
-            });
-        });
-    };
     return Pagination;
 }());
