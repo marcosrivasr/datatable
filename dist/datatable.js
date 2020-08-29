@@ -21,7 +21,7 @@ var DataTable = /** @class */ (function () {
             headers: [],
             items: []
         };
-        this._pagination = { total: 0, noItemsPerPage: 0, noPages: 0, actual: 0, pointer: 0, diff: 0, lastPageBeforeDots: 0, noButtonsBeforeDots: 4 };
+        this._pagination = new Pagination();
     }
     DataTable.prototype.createFromTable = function () {
         this.tokenizeTable();
@@ -49,21 +49,12 @@ var DataTable = /** @class */ (function () {
         });
         this._data.copy = __spreadArrays(this._data.items);
         //configure pagination
-        this.initPagination();
-    };
-    DataTable.prototype.initPagination = function () {
-        this._pagination.total = this._data.copy.length;
-        this._pagination.noItemsPerPage = this._data.settings.numberOfEntries;
-        this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
-        this._pagination.actual = 1;
-        this._pagination.pointer = 0;
-        this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
+        this._pagination.initPagination(this._data.copy.length, this._data.settings.numberOfEntries);
     };
     DataTable.prototype.renderRows = function (container) {
         var _a;
         container.querySelector('tbody').innerHTML = '';
         var i = 0;
-        var limit = this._pagination.actual * this._pagination.noItemsPerPage;
         var _loop_1 = function () {
             if (i === this_1._pagination.total)
                 return "break";
@@ -76,7 +67,7 @@ var DataTable = /** @class */ (function () {
             container.querySelector('tbody').innerHTML += "<tr>" + data + "</tr>";
         };
         var this_1 = this;
-        for (i = this._pagination.pointer; i < limit; i++) {
+        for (i = this._pagination.pointer; i < this._pagination.limit; i++) {
             var state_1 = _loop_1();
             if (state_1 === "break")
                 break;
@@ -94,6 +85,11 @@ var DataTable = /** @class */ (function () {
         }
         return res;
     };
+    /**
+     * adasd
+     * @param container
+     * @param mainContainer
+     */
     DataTable.prototype.renderPagesButtons = function (container, mainContainer) {
         var _this = this;
         container.innerHTML = '';
@@ -119,7 +115,6 @@ var DataTable = /** @class */ (function () {
         }
         container.innerHTML = "<ul>" + pages + "</ul>";
         //events for the buttons
-        //TODO: add feature to move the buttons so the hidden ones can be shown
         mainContainer.querySelectorAll('.pages li button').forEach(function (button) {
             button.addEventListener('click', function (e) {
                 _this._pagination.actual = parseInt(e.target.getAttribute('data-page'));
@@ -158,7 +153,7 @@ var DataTable = /** @class */ (function () {
         this._data.headers.forEach(function (header) {
             mainContainer.querySelector('thead tr').innerHTML += "<th>" + header + "</th>";
         });
-        this.initPagination();
+        this._pagination.initPagination(this._data.copy.length, this._data.settings.numberOfEntries);
         this.renderRows(mainContainer);
         this.renderPagesButtons(pagesContainer, mainContainer);
         if (this._data.settings.showSearch) {
@@ -166,13 +161,13 @@ var DataTable = /** @class */ (function () {
                 var query = e.target.value.trim().toLowerCase();
                 if (query === '') {
                     _this._data.copy = __spreadArrays(_this._data.items);
-                    _this.initPagination();
+                    _this._pagination.initPagination(_this._data.copy.length, _this._data.settings.numberOfEntries);
                     _this.renderRows(mainContainer);
                     _this.renderPagesButtons(pagesContainer, mainContainer);
                     return;
                 }
                 _this.search(e, query);
-                _this.initPagination();
+                _this._pagination.initPagination(_this._data.copy.length, _this._data.settings.numberOfEntries);
                 _this.renderRows(mainContainer);
                 _this.renderPagesButtons(pagesContainer, mainContainer);
             });
@@ -182,7 +177,7 @@ var DataTable = /** @class */ (function () {
             var numberOfEntries = parseInt(e.target.value);
             _this._data.settings.numberOfEntries = numberOfEntries;
             _this.makeTable();
-            _this.initPagination();
+            _this._pagination.initPagination(_this._data.copy.length, _this._data.settings.numberOfEntries);
             _this.renderRows(mainContainer);
             _this.renderPagesButtons(pagesContainer, mainContainer);
         });

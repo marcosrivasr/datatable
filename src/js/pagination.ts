@@ -1,5 +1,5 @@
 interface IPagination{
-    total: number, //
+    total: number,
     noItemsPerPage: number,
     noPages: number,
     actual: number,
@@ -9,7 +9,7 @@ interface IPagination{
     noButtonsBeforeDots:number,
 }
 
-export default class Pagination{
+class Pagination{
 
     private _pagination: IPagination;
 
@@ -18,7 +18,7 @@ export default class Pagination{
     }
 
 
-    private initPagination(nItems:number, nEntries:number):void{
+    public initPagination(nItems:number, nEntries:number):void{
         this._pagination.total = nItems;
         this._pagination.noItemsPerPage = nEntries;
         this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
@@ -39,32 +39,38 @@ export default class Pagination{
         return res;
     }
 
-    /* private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
-        container.innerHTML = '';
-        let pages:string = '';
-        if(this._pagination.noPages < 8){
-            pages += this.getIteratedButtons(1, this._pagination.noPages);
-        }else{
-            // 1 2 3 4 ... 8 9
-            pages += this.getIteratedButtons(1, this._pagination.noButtonsBeforeDots);
-            
-            pages += `<li>...</li>`;
+    public get limit(){
+        return this._pagination.actual * this._pagination.noItemsPerPage;
+    }
 
-            pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
-        }
-        
+    public get total(){
+        return this._pagination.total;
+    }
 
-        container.innerHTML = `<ul>${pages}</ul>`;
+    public get pointer(){
+        return this._pagination.pointer;
+    }
+    public set pointer(value:number){
+        this._pagination.pointer = value;
+    }
 
-        //events for the buttons
-        //TODO: add feature to move the buttons so the hidden ones can be shown
-        mainContainer.querySelectorAll('.pages li button').forEach(button => {
-            button.addEventListener('click', e => {
-                this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
-                this._pagination.pointer = (this._pagination.actual * this._pagination.noItemsPerPage) - this._pagination.noItemsPerPage;
-                this.renderRows(mainContainer);
-                this.renderPagesButtons(container, mainContainer);
-            });
-        });
-    } */
+    public get actual():number{
+        return this._pagination.actual;
+    }
+
+    public set actual(value:number){
+        this._pagination.actual = value;
+    }
+
+    public get noPages(){
+        return this._pagination.noPages;
+    }
+
+    public get noButtonsBeforeDots(){
+        return this._pagination.noButtonsBeforeDots;
+    }
+
+    public get noItemsPerPage(){
+        return this._pagination.noItemsPerPage;
+    }
 }
