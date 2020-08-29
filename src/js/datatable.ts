@@ -1,3 +1,5 @@
+
+
 interface IDataTableData{
     headers?: string[],
     count?: number,
@@ -14,22 +16,11 @@ interface ISettings{
     headerButtons?: string[]
 }
 
-interface IPagination{
-    total: number, //
-    noItemsPerPage: number,
-    noPages: number,
-    actual: number,
-    pointer: number,
-    diff: number,
-    lastPageBeforeDots:number,
-    noButtonsBeforeDots:number,
-}
 
 class DataTable{
     private _selector:string;
     private _data:IDataTableData;
-    private _pagination: IPagination
-    
+    private _pagination:Pagination;
 
     constructor(selector: string, settings: ISettings = {}){
         this._selector = selector;
@@ -38,7 +29,7 @@ class DataTable{
             headers: [],
             items: []
         };
-        this._pagination = {total: 0, noItemsPerPage:0, noPages: 0, actual:0, pointer: 0, diff: 0, lastPageBeforeDots: 0, noButtonsBeforeDots: 4};
+        this._pagination = new Pagination();
     }
 
     public createFromTable(){
@@ -58,7 +49,7 @@ class DataTable{
         (this._data.settings?.showCheckboxes)? this._data.headers!.push('') : ''; //empty cell for the checkboxes
         headers.forEach(element => {
             this._data.headers!.push(element.textContent!);
-        });
+        }); 
 
         trs.forEach(x =>{
             const tr = <HTMLElement[]>[].slice.call(x.children);
@@ -72,26 +63,16 @@ class DataTable{
         this._data.copy = [...this._data.items!];
 
         //configure pagination
-        this.initPagination();
+        this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
         
-    }
-
-    private initPagination():void{
-        this._pagination.total = this._data.copy!.length;
-        this._pagination.noItemsPerPage = this._data.settings!.numberOfEntries!;
-        this._pagination.noPages = Math.ceil(this._pagination.total / this._pagination.noItemsPerPage);
-        this._pagination.actual = 1;
-        this._pagination.pointer = 0;
-        this._pagination.diff = this._pagination.noItemsPerPage - (this._pagination.total % this._pagination.noItemsPerPage);
     }
 
     private renderRows(container:HTMLElement){
         container.querySelector('tbody')!.innerHTML = '';
 
         let i = 0;
-        const limit = this._pagination.actual * this._pagination.noItemsPerPage;
 
-        for(i = this._pagination.pointer; i < limit; i++){
+        for(i = this._pagination.pointer; i < this._pagination.limit; i++){
             
             if(i === this._pagination.total) break;
             let data = '';
@@ -115,6 +96,11 @@ class DataTable{
         }
         return res;
     }
+    /**
+     * adasd
+     * @param container 
+     * @param mainContainer 
+     */
     private renderPagesButtons(container:HTMLElement, mainContainer:HTMLElement){
         container.innerHTML = '';
         let pages:string = '';
@@ -142,7 +128,6 @@ class DataTable{
         container.innerHTML = `<ul>${pages}</ul>`;
 
         //events for the buttons
-        //TODO: add feature to move the buttons so the hidden ones can be shown
         mainContainer.querySelectorAll('.pages li button').forEach(button => {
             button.addEventListener('click', e => {
                 this._pagination.actual = parseInt((<HTMLElement>e.target!).getAttribute('data-page')!);
@@ -216,7 +201,7 @@ class DataTable{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
-        this.initPagination();
+        this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
         this.renderRows(mainContainer);
         this.renderPagesButtons(pagesContainer, mainContainer);
 
@@ -226,7 +211,7 @@ class DataTable{
 
                 if(query === ''){
                     this._data.copy = [...this._data.items!];
-                    this.initPagination();
+                    this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
                     this.renderRows(mainContainer);
                     this.renderPagesButtons(pagesContainer, mainContainer);
                     return;
@@ -234,7 +219,7 @@ class DataTable{
 
                 this.search(e, query);
 
-                this.initPagination();
+                this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
                 this.renderRows(mainContainer);  
                 this.renderPagesButtons(pagesContainer, mainContainer);
             });
@@ -245,9 +230,9 @@ class DataTable{
             const numberOfEntries:number = parseInt((<HTMLSelectElement>e.target).value);
             this._data.settings!.numberOfEntries = numberOfEntries;
             this.makeTable();
-            this.initPagination();
+            this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
             this.renderRows(mainContainer);
-            this.renderPagesButtons(pagesContainer, mainContainer);
+            this.renderPagesButtons(pagesContainer, mainContainer); 
         });
     }
 
