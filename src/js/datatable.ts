@@ -14,7 +14,17 @@ interface ISettings{
     showHeaderButtons?:boolean,
     showSearch?: boolean,
     numberOfEntries?: number,
-    headerButtons?: string[]
+    headerButtons?: Button[]
+}
+
+interface Button{
+    id: string,
+    text: string,
+    click: ICallback
+}
+
+interface ICallback{
+    () : void;
 }
 
 interface Item{
@@ -33,7 +43,7 @@ class DataTable{
         showHeaderButtons: true,
         showSearch: true,
         numberOfEntries: 5,
-        headerButtons: ['qwe', 'dfdf', 'asd']
+        headerButtons: []
     }){
         this._selector = selector;
         this._data = {
@@ -191,15 +201,19 @@ class DataTable{
         });
     }
 
-    private renderHeaderButtons():string{
+    private renderHeaderButtons(container:HTMLElement, mainContainer:HTMLElement):void{
         let html = '';
-        if(this._data.settings!.showHeaderButtons){
-            this._data.settings!.headerButtons!.forEach(button =>{
-                html += `<li><button>${button}</button></li>`;
+        const {showHeaderButtons, headerButtons} = this._data.settings!;
+        container.innerHTML = '';
+        if(showHeaderButtons){
+            headerButtons!.forEach(button =>{
+                html += `<li><button id="${button.id}">${button.text}</button></li>`;
             });
-            return html;
-        }else{
-            return html;
+
+            container.innerHTML = html;
+            headerButtons!.forEach(button =>{
+                document.querySelector('#' + button.id)?.addEventListener('click', button.click);
+            });
         }
     }
 
@@ -208,8 +222,7 @@ class DataTable{
         <div class="datatable-container">
             <div class="header-tools">
                 <div class="tools">
-                    <ul>
-                        ${this.renderHeaderButtons()}
+                    <ul id="header-buttons-container">
                     </ul>
                 </div>
                 ${(this._data.settings?.showSearch)? `<div class="search">
@@ -245,6 +258,7 @@ class DataTable{
     private makeTable(){
         const old_elem = document.querySelector(this._selector)!;
         const mainContainer:HTMLElement = document.createElement("div");
+        
 
         mainContainer.setAttribute('id', this._selector);
         document.querySelector(this._selector)?.replaceWith(mainContainer);
@@ -260,6 +274,9 @@ class DataTable{
         this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
         this.renderRows(mainContainer);
         this.renderPagesButtons(pagesContainer, mainContainer);
+
+        const headerButtonsContainer = <HTMLElement>document.querySelector('#header-buttons-container')!;
+        this.renderHeaderButtons(headerButtonsContainer, mainContainer);
 
         if(this._data.settings!.showSearch){
             mainContainer.querySelector('.search-input')!.addEventListener('input', e => {
@@ -289,6 +306,8 @@ class DataTable{
             this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
             this.renderRows(mainContainer);
             this.renderPagesButtons(pagesContainer, mainContainer); 
+
+
         });
     }
 
