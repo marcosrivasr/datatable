@@ -3,9 +3,10 @@
 interface IDataTableData{
     headers?: string[],
     count?: number,
-    items?: object[],
-    copy?: object[],
-    settings?: ISettings
+    items?: Item[],
+    copy?: Item[],
+    settings?: ISettings,
+    selected: Item[]
 }
 
 interface ISettings{
