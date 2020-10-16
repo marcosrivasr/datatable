@@ -58,16 +58,22 @@ var DataTable = /** @class */ (function () {
     };
     DataTable.prototype.renderRows = function (container) {
         var _this = this;
-        var _a;
         container.querySelector('tbody').innerHTML = '';
         var i = 0;
+        var _a = this._pagination, pointer = _a.pointer, limit = _a.limit, total = _a.total;
         var _loop_1 = function () {
-            if (i === this_1._pagination.total)
+            if (i === total)
                 return "break";
             var _a = this_1._data.copy[i], id = _a.id, values = _a.values;
+            var showCheckboxes = this_1._data.settings.showCheckboxes;
+            var checked = this_1.isChecked(id);
+            console.log(id, checked);
             var data = '';
             //checkbox added
-            ((_a = this_1._data.settings) === null || _a === void 0 ? void 0 : _a.showCheckboxes) ? data += "<td class=\"table-checkbox\"><input type=\"checkbox\" class=\"datatable-checkbox\" name=\"\" id=\"\" data-id=\"" + id + "\"></td>" : '';
+            (showCheckboxes)
+                ?
+                    data += "<td class=\"table-checkbox\">\n                            <input type=\"checkbox\" class=\"datatable-checkbox\" data-id=\"" + id + "\" " + (checked ? "checked" : "") + ">\n                        </td>"
+                : '';
             values.forEach(function (cell) {
                 data += "<td>" + cell + "</td>";
             });
@@ -89,7 +95,7 @@ var DataTable = /** @class */ (function () {
             });
         };
         var this_1 = this;
-        for (i = this._pagination.pointer; i < this._pagination.limit; i++) {
+        for (i = pointer; i < limit; i++) {
             var state_1 = _loop_1();
             if (state_1 === "break")
                 break;
@@ -236,6 +242,19 @@ var DataTable = /** @class */ (function () {
     };
     DataTable.prototype.getSelected = function () {
         return this._data.selected;
+    };
+    DataTable.prototype.isChecked = function (id) {
+        var items = this._data.selected;
+        var res = false;
+        console.log("items", items.length);
+        if (items.length == 0)
+            return false;
+        items.forEach(function (item) {
+            console.log(item.id, id);
+            if (item.id == id)
+                res = true;
+        });
+        return res;
     };
     return DataTable;
 }());
