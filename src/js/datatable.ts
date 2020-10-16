@@ -95,14 +95,38 @@ class DataTable{
         for(i = this._pagination.pointer; i < this._pagination.limit; i++){
             
             if(i === this._pagination.total) break;
+
+            const {id, values} = this._data.copy![i];
             let data = '';
+
             //checkbox added
-            (this._data.settings?.showCheckboxes)? data += `<td class="table-checkbox"><input type="checkbox" name="" id=""></td>` : '';
-            (<string[]>this._data.copy![i]).forEach(cell =>{
+            (this._data.settings?.showCheckboxes)? data += `<td class="table-checkbox"><input type="checkbox" class="datatable-checkbox" name="" id="" data-id="${id}"></td>` : '';
+            
+            
+            values.forEach(cell =>{
                 data += `<td>${cell}</td>`
             });
+
             container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
+
+            //checkbox event listener
+            document.querySelectorAll('.datatable-checkbox').forEach(checkbox =>{
+                checkbox.addEventListener('click', e =>{
+                    const element = e.target as HTMLInputElement;
+                    const id:string = element.getAttribute('data-id')!;
+                    
+                    if(element.checked){
+                        const item = this.getItem(id);
+
+                        this._data!.selected!.push(item);
+                    }else{
+                        this.removeSelected(id);
         }
+
+                    console.log("selected", this._data.selected!);
+                });
+            });
+    }
     }
 
     private getIteratedButtons(start:number, end:number):string{
@@ -266,18 +290,19 @@ class DataTable{
 
     private search(e:Event, query:string):void{
         
-        let res:string[][] = [];
+        let res:Item[] = [];
         
         this._data.copy = [...this._data.items!];
         //find the match
         for(let i:number = 0; i < this._data.copy!.length; i++){
-            const row:string[] = <string[]>this._data.copy![i];
+            const {id, values} = this._data.copy![i];
+            const row:string[] = values;
 
             for(let j:number = 0; j < row.length; j++){
                 const cell = row[j];
 
                 if(cell.toLowerCase().indexOf(query) >= 0){
-                    res.push(row);
+                    res.push({id: id, values: row});
                     break;
                 }
             }    
