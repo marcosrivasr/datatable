@@ -13,7 +13,7 @@ var DataTable = /** @class */ (function () {
             showHeaderButtons: true,
             showSearch: true,
             numberOfEntries: 5,
-            headerButtons: ['qwe', 'dfdf', 'asd']
+            headerButtons: []
         }; }
         this._selector = selector;
         this._data = {
@@ -152,21 +152,24 @@ var DataTable = /** @class */ (function () {
             });
         });
     };
-    DataTable.prototype.renderHeaderButtons = function () {
+    DataTable.prototype.renderHeaderButtons = function (container, mainContainer) {
         var html = '';
-        if (this._data.settings.showHeaderButtons) {
-            this._data.settings.headerButtons.forEach(function (button) {
-                html += "<li><button>" + button + "</button></li>";
+        var _a = this._data.settings, showHeaderButtons = _a.showHeaderButtons, headerButtons = _a.headerButtons;
+        container.innerHTML = '';
+        if (showHeaderButtons) {
+            headerButtons.forEach(function (button) {
+                html += "<li><button id=\"" + button.id + "\">" + button.text + "</button></li>";
             });
-            return html;
-        }
-        else {
-            return html;
+            container.innerHTML = html;
+            headerButtons.forEach(function (button) {
+                var _a;
+                (_a = document.querySelector('#' + button.id)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', button.click);
+            });
         }
     };
     DataTable.prototype.createHTML = function (container) {
         var _a;
-        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul>\n                        " + this.renderHeaderButtons() + "\n                    </ul>\n                </div>\n                " + (((_a = this._data.settings) === null || _a === void 0 ? void 0 : _a.showSearch) ? "<div class=\"search\">\n                <input type=\"text\" class=\"search-input\">\n            </div>" : '') + "\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"5\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                </div>\n            </div>\n        </div>\n        ";
+        container.innerHTML = "\n        <div class=\"datatable-container\">\n            <div class=\"header-tools\">\n                <div class=\"tools\">\n                    <ul id=\"header-buttons-container\">\n                    </ul>\n                </div>\n                " + (((_a = this._data.settings) === null || _a === void 0 ? void 0 : _a.showSearch) ? "<div class=\"search\">\n                <input type=\"text\" class=\"search-input\">\n            </div>" : '') + "\n            </div>\n            <table class=\"datatable\">\n                <thead>\n                    <tr>\n                    </tr>\n                </thead>\n                <tbody>\n                </tbody>\n            </table>\n            <div class=\"footer-tools\">\n                <div class=\"list-items\">\n                    Show\n                    <select name=\"n-entries\" id=\"n-enties\" class=\"n-entries\">\n                        <option value=\"5\">5</option>\n                        <option value=\"10\">10</option>\n                        <option value=\"15\">15</option>\n                    </select>\n                    entries\n                </div>\n                \n                <div class=\"pages\">\n                </div>\n            </div>\n        </div>\n        ";
     };
     DataTable.prototype.makeTable = function () {
         var _this = this;
@@ -184,6 +187,8 @@ var DataTable = /** @class */ (function () {
         this._pagination.initPagination(this._data.copy.length, this._data.settings.numberOfEntries);
         this.renderRows(mainContainer);
         this.renderPagesButtons(pagesContainer, mainContainer);
+        var headerButtonsContainer = document.querySelector('#header-buttons-container');
+        this.renderHeaderButtons(headerButtonsContainer, mainContainer);
         if (this._data.settings.showSearch) {
             mainContainer.querySelector('.search-input').addEventListener('input', function (e) {
                 var query = e.target.value.trim().toLowerCase();
