@@ -76,7 +76,7 @@ class DataTable{
             tr.forEach(td => {
                 item.values.push(td.textContent!)
             });
-                
+
             this._data.items!.push(item);
         });
         this._data.copy = [...this._data.items!];
@@ -121,12 +121,12 @@ class DataTable{
                         this._data!.selected!.push(item);
                     }else{
                         this.removeSelected(id);
-        }
+                    }
 
                     console.log("selected", this._data.selected!);
                 });
             });
-    }
+        }
     }
 
     private getIteratedButtons(start:number, end:number):string{
