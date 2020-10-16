@@ -30,7 +30,7 @@ class DataTable{
 
     constructor(selector: string, settings: ISettings = {
         showCheckboxes: true,
-        showHeaderButtons: true, //FIXME: it doesnt work
+        showHeaderButtons: true,
         showSearch: true,
         numberOfEntries: 5,
         headerButtons: ['qwe', 'dfdf', 'asd']
@@ -39,7 +39,8 @@ class DataTable{
         this._data = {
             settings: settings,
             headers: [],
-            items: []
+            items: [],
+            selected: []
         };
         this._pagination = new Pagination();
     }
