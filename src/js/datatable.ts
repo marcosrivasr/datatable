@@ -91,16 +91,24 @@ class DataTable{
         container.querySelector('tbody')!.innerHTML = '';
 
         let i = 0;
+        const {pointer, limit, total} = this._pagination;
 
-        for(i = this._pagination.pointer; i < this._pagination.limit; i++){
+        for(i = pointer; i < limit; i++){
             
-            if(i === this._pagination.total) break;
+            if(i === total) break;
 
             const {id, values} = this._data.copy![i];
+            const {showCheckboxes} = this._data.settings!;
+            const checked = this.isChecked(id);
+            console.log(id, checked);
             let data = '';
-
             //checkbox added
-            (this._data.settings?.showCheckboxes)? data += `<td class="table-checkbox"><input type="checkbox" class="datatable-checkbox" name="" id="" data-id="${id}"></td>` : '';
+            (showCheckboxes)
+            ? 
+                data += `<td class="table-checkbox">
+                            <input type="checkbox" class="datatable-checkbox" data-id="${id}" ${checked? "checked": ""}>
+                        </td>` 
+            : '';
             
             
             values.forEach(cell =>{
@@ -326,5 +334,19 @@ class DataTable{
 
     public getSelected():Item[]{
         return this._data.selected!;
+    }
+
+    public isChecked(id:string){
+        const items = this._data.selected!;
+        let res = false;
+        console.log("items", items.length);
+        if(items.length == 0) return false;
+
+        items.forEach(item => {
+            console.log(item.id, id);
+            if(item.id == id) res = true;
+        });
+
+        return res;
     }
 }
