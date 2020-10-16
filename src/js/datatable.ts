@@ -54,6 +54,7 @@ class DataTable{
 
     private tokenizeTable():void{
         const el = document.querySelector(this._selector);
+
         if(el?.tagName.toLowerCase() != 'table') throw new Error('Table is required. ' + el?.tagName);
          
         const headers = <HTMLElement[]>[].slice.call(el.querySelector('thead tr')?.children!);
@@ -66,14 +67,20 @@ class DataTable{
 
         trs.forEach(x =>{
             const tr = <HTMLElement[]>[].slice.call(x.children);
-            let row:string[] = [];
+
+            let item:Item = {
+                id: this.generateUUID(),
+                values: []
+            }
+
             tr.forEach(td => {
-                row.push(td.textContent!)
-                
+                item.values.push(td.textContent!)
             });
-            this._data.items!.push(row);
+                
+            this._data.items!.push(item);
         });
         this._data.copy = [...this._data.items!];
+        console.log(this._data.copy);
 
         //configure pagination
         this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
