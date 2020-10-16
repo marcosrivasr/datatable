@@ -17,6 +17,11 @@ interface ISettings{
     headerButtons?: string[]
 }
 
+interface Item{
+    id: string,
+    values: string[]
+}
+
 
 class DataTable{
     private _selector:string;
