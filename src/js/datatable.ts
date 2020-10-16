@@ -309,4 +309,22 @@ class DataTable{
         }
         this._data.copy = [...res];
     }
+
+    private generateUUID(): string{
+        return (Date.now() * Math.floor(Math.random() * 100000)).toString();
+    }
+
+    private getItem(id: string):Item{
+        const res = this._data.items!.filter(item => item.id == id);
+        return res[0];
+    }
+
+    private removeSelected(id:string):void{
+        const res = this._data.selected!.filter(item => item.id != id);
+        this._data.selected! = [...res];
+    }
+
+    public getSelected():Item[]{
+        return this._data.selected!;
+    }
 }
