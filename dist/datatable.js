@@ -19,7 +19,8 @@ var DataTable = /** @class */ (function () {
         this._data = {
             settings: settings,
             headers: [],
-            items: []
+            items: [],
+            selected: []
         };
         this._pagination = new Pagination();
     }
@@ -41,30 +42,51 @@ var DataTable = /** @class */ (function () {
         });
         trs.forEach(function (x) {
             var tr = [].slice.call(x.children);
-            var row = [];
+            var item = {
+                id: _this.generateUUID(),
+                values: []
+            };
             tr.forEach(function (td) {
-                row.push(td.textContent);
+                item.values.push(td.textContent);
             });
-            _this._data.items.push(row);
+            _this._data.items.push(item);
         });
         this._data.copy = __spreadArrays(this._data.items);
+        console.log(this._data.copy);
         //configure pagination
         this._pagination.initPagination(this._data.copy.length, this._data.settings.numberOfEntries);
     };
     DataTable.prototype.renderRows = function (container) {
+        var _this = this;
         var _a;
         container.querySelector('tbody').innerHTML = '';
         var i = 0;
         var _loop_1 = function () {
             if (i === this_1._pagination.total)
                 return "break";
+            var _a = this_1._data.copy[i], id = _a.id, values = _a.values;
             var data = '';
             //checkbox added
-            ((_a = this_1._data.settings) === null || _a === void 0 ? void 0 : _a.showCheckboxes) ? data += "<td class=\"table-checkbox\"><input type=\"checkbox\" name=\"\" id=\"\"></td>" : '';
-            this_1._data.copy[i].forEach(function (cell) {
+            ((_a = this_1._data.settings) === null || _a === void 0 ? void 0 : _a.showCheckboxes) ? data += "<td class=\"table-checkbox\"><input type=\"checkbox\" class=\"datatable-checkbox\" name=\"\" id=\"\" data-id=\"" + id + "\"></td>" : '';
+            values.forEach(function (cell) {
                 data += "<td>" + cell + "</td>";
             });
             container.querySelector('tbody').innerHTML += "<tr>" + data + "</tr>";
+            //checkbox event listener
+            document.querySelectorAll('.datatable-checkbox').forEach(function (checkbox) {
+                checkbox.addEventListener('click', function (e) {
+                    var element = e.target;
+                    var id = element.getAttribute('data-id');
+                    if (element.checked) {
+                        var item = _this.getItem(id);
+                        _this._data.selected.push(item);
+                    }
+                    else {
+                        _this.removeSelected(id);
+                    }
+                    console.log("selected", _this._data.selected);
+                });
+            });
         };
         var this_1 = this;
         for (i = this._pagination.pointer; i < this._pagination.limit; i++) {
@@ -189,16 +211,31 @@ var DataTable = /** @class */ (function () {
         this._data.copy = __spreadArrays(this._data.items);
         //find the match
         for (var i = 0; i < this._data.copy.length; i++) {
-            var row = this._data.copy[i];
+            var _a = this._data.copy[i], id = _a.id, values = _a.values;
+            var row = values;
             for (var j = 0; j < row.length; j++) {
                 var cell = row[j];
                 if (cell.toLowerCase().indexOf(query) >= 0) {
-                    res.push(row);
+                    res.push({ id: id, values: row });
                     break;
                 }
             }
         }
         this._data.copy = __spreadArrays(res);
+    };
+    DataTable.prototype.generateUUID = function () {
+        return (Date.now() * Math.floor(Math.random() * 100000)).toString();
+    };
+    DataTable.prototype.getItem = function (id) {
+        var res = this._data.items.filter(function (item) { return item.id == id; });
+        return res[0];
+    };
+    DataTable.prototype.removeSelected = function (id) {
+        var res = this._data.selected.filter(function (item) { return item.id != id; });
+        this._data.selected = __spreadArrays(res);
+    };
+    DataTable.prototype.getSelected = function () {
+        return this._data.selected;
     };
     return DataTable;
 }());
