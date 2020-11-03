@@ -6,7 +6,8 @@ interface IDataTableData{
     items?: Item[],
     copy?: Item[],
     settings?: ISettings,
-    selected: Item[]
+    selected: Item[],
+    sorted: number
 }
 
 interface ISettings{
@@ -57,7 +58,7 @@ class DataTable{
 
     public createFromTable(){
         
-        this.tokenizeTable();
+         this.tokenizeTable();
 
         this.makeTable();
     }
@@ -67,8 +68,8 @@ class DataTable{
 
         if(el?.tagName.toLowerCase() != 'table') throw new Error('Table is required. ' + el?.tagName);
          
-        const headers = <HTMLElement[]>[].slice.call(el.querySelector('thead tr')?.children!);
-        const trs = <HTMLElement[]>[].slice.call(el.querySelector('tbody')?.children!);
+        const headers = <HTMLElement[]>Array.from(el.querySelector('thead tr')?.children!);
+        const trs = <HTMLElement[]>Array.from(el.querySelector('tbody')?.children!);
         
         (this._data.settings?.showCheckboxes)? this._data.headers!.push('') : ''; //empty cell for the checkboxes
         headers.forEach(element => {
@@ -184,6 +185,10 @@ class DataTable{
             pages += this.getIteratedButtons(limI, limS);
             pages += `<li>...</li>`;
             pages += this.getIteratedButtons(this._pagination.noPages - 1, this._pagination.noPages);
+        }else if(limI > (this._pagination.noPages + 2)){
+            pages += this.getIteratedButtons(0, 1);
+            pages += `<li>...</li>`;
+            pages += this.getIteratedButtons(limI, limS);
         }else{
             pages += this.getIteratedButtons(limI, this._pagination.noPages);
         }
@@ -267,8 +272,24 @@ class DataTable{
         const pagesContainer = <HTMLElement>document.querySelector('.footer-tools .pages');
         this.renderPagesButtons(pagesContainer, mainContainer);
         
+        // render headers
         this._data.headers!.forEach(header =>{
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
+        });
+
+        //evento para los headers
+        document.querySelectorAll('th').forEach((header, i) =>{
+            header.addEventListener('click', e =>{
+                const index = i;
+                if(this._data.sorted === index){
+                    this.sort(i - 1, true);
+                }else{
+                    this.sort(i - 1);
+                }
+                
+                this._data.sorted = i;
+                this.renderRows(mainContainer);
+            });
         });
 
         this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
@@ -306,8 +327,18 @@ class DataTable{
             this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
             this.renderRows(mainContainer);
             this.renderPagesButtons(pagesContainer, mainContainer); 
+        });
+    }
 
+    private sort(index:number, reverse:boolean = false){
+        this._data.copy = this._data.copy!.sort( (a:Item, b:Item) =>{
+            let res = 0;
+            if(a.values[index][0] < b.values[index][0]) res = -1;
+            if(a.values[index][0] > b.values[index][0]) res = 1;
+            
+            if(reverse) res *= -1;
 
+            return res;
         });
     }
 
