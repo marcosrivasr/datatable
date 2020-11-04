@@ -51,7 +51,8 @@ class DataTable{
             settings: settings,
             headers: [],
             items: [],
-            selected: []
+            selected: [],
+            sorted:-1
         };
         this._pagination = new Pagination();
     }
@@ -91,7 +92,7 @@ class DataTable{
             this._data.items!.push(item);
         });
         this._data.copy = [...this._data.items!];
-        console.log(this._data.copy);
+        //console.log(this._data.copy);
 
         //configure pagination
         this._pagination.initPagination(this._data.copy!.length, this._data.settings!.numberOfEntries!);
@@ -111,7 +112,7 @@ class DataTable{
             const {id, values} = this._data.copy![i];
             const {showCheckboxes} = this._data.settings!;
             const checked = this.isChecked(id);
-            console.log(id, checked);
+            //console.log(id, checked);
             let data = '';
             //checkbox added
             (showCheckboxes)
@@ -142,7 +143,7 @@ class DataTable{
                         this.removeSelected(id);
                     }
 
-                    console.log("selected", this._data.selected!);
+                    //console.log("selected", this._data.selected!);
                 });
             });
         }
@@ -282,8 +283,10 @@ class DataTable{
             header.addEventListener('click', e =>{
                 const index = i;
                 if(this._data.sorted === index){
+                    console.log('reverse');
                     this.sort(i - 1, true);
                 }else{
+                    console.log('new');
                     this.sort(i - 1);
                 }
                 
@@ -389,7 +392,7 @@ class DataTable{
     public isChecked(id:string){
         const items = this._data.selected!;
         let res = false;
-        console.log("items", items.length);
+        //console.log("items", items.length);
         if(items.length == 0) return false;
 
         items.forEach(item => {
