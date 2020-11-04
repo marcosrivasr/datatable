@@ -4,6 +4,8 @@
     --dt-padding-xsm: 2px;
     --dt-border-color: #ddd;
     --dt-border-color-02: #ccc;
+    --dt-cell-color: #fafafa;
+    --dt-hover-color: #dadada;
     --dt-bg-color: #eee;
     --dt-bg-active-button: #eee;
     --dt-text-color-button: #222;
@@ -114,16 +116,20 @@
     font-weight: bolder;
     text-align: left;
     border-bottom: solid 1px var(--dt-border-color);
+    cursor: pointer;
+}
+.datatable-container .datatable th:hover{
+    background-color: var(--dt-hover-color);
 }
 
 .datatable-container .datatable td{
     border-bottom: solid 1px var(--dt-border-color);
 }
 .datatable-container .datatable tbody tr:nth-child(even){
-    background-color: rgb(250, 250, 250);
+    background-color: var(--dt-cell-color);
 }
 .datatable-container .datatable tbody tr:hover{
-    background-color: rgb(230, 230, 230);
+    background-color: var(--dt-hover-color);
 }
 .datatable-container .datatable tbody tr .table-checkbox{
     width: 1px;
