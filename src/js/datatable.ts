@@ -8,6 +8,7 @@ interface IDataTableData{
     settings?: ISettings,
     selected: Item[],
     sorted: number
+    reversed: boolean
 }
 
 interface ISettings{
@@ -52,7 +53,8 @@ class DataTable{
             headers: [],
             items: [],
             selected: [],
-            sorted:-1
+            sorted:-1,
+            reversed: false
         };
         this._pagination = new Pagination();
     }
@@ -123,8 +125,13 @@ class DataTable{
             : '';
             
             
-            values.forEach(cell =>{
-                data += `<td>${cell}</td>`
+            values.forEach((cell, i) =>{
+                let classCellSorted = '';
+                if(i == this._data.sorted - 1){
+                    classCellSorted = 'cell-sorted';
+                }
+
+                data += `<td class="${classCellSorted}">${cell}</td>`
             });
 
             container.querySelector('tbody')!.innerHTML += `<tr>${data}</tr>`;
