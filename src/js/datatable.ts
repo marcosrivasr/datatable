@@ -114,7 +114,7 @@ class DataTable{
             const {id, values} = this._data.copy![i];
             const {showCheckboxes} = this._data.settings!;
             const checked = this.isChecked(id);
-            //console.log(id, checked);
+
             let data = '';
             //checkbox added
             (showCheckboxes)
@@ -281,7 +281,8 @@ class DataTable{
         this.renderPagesButtons(pagesContainer, mainContainer);
         
         // render headers
-        this._data.headers!.forEach(header =>{
+        this._data.headers!.forEach((header, i) =>{
+            
             mainContainer.querySelector('thead tr')!.innerHTML += `<th>${header}</th>`;
         });
 
@@ -289,14 +290,31 @@ class DataTable{
         document.querySelectorAll('th').forEach((header, i) =>{
             header.addEventListener('click', e =>{
                 const index = i;
+                if((e.target as HTMLInputElement).textContent == '') return false;
                 if(this._data.sorted === index){
-                    console.log('reverse');
-                    this.sort(i - 1, true);
+                    if(!this._data.reversed){
+                        this._data.reversed = true;
+                    }else{
+                        this._data.reversed = false;
+                    }
                 }else{
-                    console.log('new');
-                    this.sort(i - 1);
+                    this._data.reversed = false;
                 }
+                this.sort(i - 1);
                 
+                document
+                .querySelectorAll('.datatable-container .datatable th')
+                .forEach(header =>{
+                    header
+                    .classList
+                    .remove('header-sorted');
+                });
+
+                document
+                .querySelectorAll('.datatable-container .datatable th')[index]
+                .classList
+                .add('header-sorted');
+
                 this._data.sorted = i;
                 this.renderRows(mainContainer);
             });
@@ -340,15 +358,19 @@ class DataTable{
         });
     }
 
-    private sort(index:number, reverse:boolean = false){
+    private sort(index:number){
         this._data.copy = this._data.copy!.sort( (a:Item, b:Item) =>{
-            let res = 0;
-            if(a.values[index][0] < b.values[index][0]) res = -1;
-            if(a.values[index][0] > b.values[index][0]) res = 1;
-            
-            if(reverse) res *= -1;
+            const itemA = (isNaN(parseInt(a.values[index])))? a.values[index][0]: a.values[index];
+            const itemB = (isNaN(parseInt(b.values[index])))? b.values[index][0]: b.values[index];
 
-            return res;
+            if(this._data.reversed){
+                if(itemA < itemB) return -1;
+                if(itemA > itemB) return 1;
+            }else{
+                if(itemA > itemB) return -1;
+                if(itemA < itemB) return 1;
+            }
+            return 0;
         });
     }
 
