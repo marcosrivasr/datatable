@@ -13,7 +13,8 @@ class DataTable {
             headers: [],
             items: [],
             selected: [],
-            sorted: -1
+            sorted: -1,
+            reversed: false
         };
         this._pagination = new Pagination();
     }
@@ -58,7 +59,6 @@ class DataTable {
             const { id, values } = this._data.copy[i];
             const { showCheckboxes } = this._data.settings;
             const checked = this.isChecked(id);
-            //console.log(id, checked);
             let data = '';
             //checkbox added
             (showCheckboxes)
@@ -67,8 +67,12 @@ class DataTable {
                             <input type="checkbox" class="datatable-checkbox" data-id="${id}" ${checked ? "checked" : ""}>
                         </td>`
                 : '';
-            values.forEach(cell => {
-                data += `<td>${cell}</td>`;
+            values.forEach((cell, i) => {
+                let classCellSorted = '';
+                if (i == this._data.sorted - 1) {
+                    classCellSorted = 'cell-sorted';
+                }
+                data += `<td class="${classCellSorted}">${cell}</td>`;
             });
             container.querySelector('tbody').innerHTML += `<tr>${data}</tr>`;
             //checkbox event listener
@@ -206,21 +210,38 @@ class DataTable {
         const pagesContainer = document.querySelector('.footer-tools .pages');
         this.renderPagesButtons(pagesContainer, mainContainer);
         // render headers
-        this._data.headers.forEach(header => {
+        this._data.headers.forEach((header, i) => {
             mainContainer.querySelector('thead tr').innerHTML += `<th>${header}</th>`;
         });
         //evento para los headers
         document.querySelectorAll('th').forEach((header, i) => {
             header.addEventListener('click', e => {
                 const index = i;
+                if (e.target.textContent == '')
+                    return false;
                 if (this._data.sorted === index) {
-                    console.log('reverse');
-                    this.sort(i - 1, true);
+                    if (!this._data.reversed) {
+                        this._data.reversed = true;
+                    }
+                    else {
+                        this._data.reversed = false;
+                    }
                 }
                 else {
-                    console.log('new');
-                    this.sort(i - 1);
+                    this._data.reversed = false;
                 }
+                this.sort(i - 1);
+                document
+                    .querySelectorAll('.datatable-container .datatable th')
+                    .forEach(header => {
+                    header
+                        .classList
+                        .remove('header-sorted');
+                });
+                document
+                    .querySelectorAll('.datatable-container .datatable th')[index]
+                    .classList
+                    .add('header-sorted');
                 this._data.sorted = i;
                 this.renderRows(mainContainer);
             });
@@ -256,16 +277,23 @@ class DataTable {
             this.renderPagesButtons(pagesContainer, mainContainer);
         });
     }
-    sort(index, reverse = false) {
+    sort(index) {
         this._data.copy = this._data.copy.sort((a, b) => {
-            let res = 0;
-            if (a.values[index][0] < b.values[index][0])
-                res = -1;
-            if (a.values[index][0] > b.values[index][0])
-                res = 1;
-            if (reverse)
-                res *= -1;
-            return res;
+            const itemA = (isNaN(parseInt(a.values[index]))) ? a.values[index][0] : a.values[index];
+            const itemB = (isNaN(parseInt(b.values[index]))) ? b.values[index][0] : b.values[index];
+            if (this._data.reversed) {
+                if (itemA < itemB)
+                    return -1;
+                if (itemA > itemB)
+                    return 1;
+            }
+            else {
+                if (itemA > itemB)
+                    return -1;
+                if (itemA < itemB)
+                    return 1;
+            }
+            return 0;
         });
     }
     onChangeEntries(e) {
