@@ -6,6 +6,7 @@
     --dt-border-color-02: #ccc;
     --dt-cell-color: #fafafa;
     --dt-hover-color: #dadada;
+    --dt-sorted-color: rgba(0,0,0,0.1);
     --dt-bg-color: #eee;
     --dt-bg-active-button: #eee;
     --dt-text-color-button: #222;
@@ -133,4 +134,11 @@
 }
 .datatable-container .datatable tbody tr .table-checkbox{
     width: 1px;
+}
+
+.datatable-container .datatable .cell-sorted{
+    background-color: var(--dt-sorted-color);
+}
+.datatable-container .datatable .header-sorted{
+    background-color: var(--dt-sorted-color);
 }
